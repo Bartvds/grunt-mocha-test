@@ -54,6 +54,30 @@ describe('grunt-mocha-test', function() {
     });
   });
 
+  it('should run tests and handle returned promises', function(done) {
+    execScenario('promiseTest', function(error, stdout, stderr) {
+      expect(stdout).to.match(/test1/);
+      expect(stdout).to.match(/test2/);
+      expect(stdout).to.match(/2 passing/);
+      expect(stdout).to.match(/Done, without errors./);
+      expect(stderr).to.equal('');
+      done();
+    });
+  });
+
+  it('should cleanly catch asynchronous promise rejection so that grunt does not exit early', function(done) {
+    execScenario('promiseTestFailure', function(error, stdout, stderr) {
+      expect(stdout).to.match(/PromiseFailure test1/);
+      expect(stdout).to.match(/PromiseFailure test2/);
+      expect(stdout).to.match(/PromiseFailure test3/);
+      expect(stdout).to.match(/PromiseFailure test4/);
+      expect(stdout).to.match(/Aborted due to warnings./);
+      expect(stderr).to.match(/0 passing/);
+      expect(stderr).to.match(/4 failing/);
+      done();
+    });
+  });
+
   it('should cleanly catch and log require exceptions thrown synchronously by Mocha so that grunt does not exit early', function(done) {
     execScenario('requireFailure', function(error, stdout, stderr) {
       expect(stdout).to.match(/Cannot find module 'doesNotExist/);
